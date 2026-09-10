@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-font="inter" data-accent="navy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUST AI Study Planner - Mbeya University of Science and Technology</title>
+    
+    <!-- Third-Party CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Third-Party JS Libraries (jsPDF & SheetJS Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+   <!-- ==================================================================== -->
+<!-- 1. AUTHENTICATION LAYOUT (LOGIN / REGISTER / FORGOT)                 -->
+<!-- ==================================================================== -->
+<div id="authContainer" class="auth-wrapper">
+    <!-- Slideshow za Picha za Nyuma -->
+    <div class="bg-slideshow">
+        <div class="slide slide-1"></div>
+        <div class="slide slide-2"></div>
+        <div class="slide slide-3"></div>
+    </div>
+
+    <!-- Overlay ya giza -->
+    <div class="bg-overlay"></div>
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa-solid fa-graduation-cap auth-logo"></i>
+            <h2>MUST AI Study Planner</h2>
+            <p>Mbeya University of Science and Technology</p>
+        </div>
+
+        <!-- Login Form (Imerekebishwa Kutumia Reg Number) -->
+        <form id="loginForm" class="auth-form active">
+            <h3>Sign In to Your Account</h3>
+            
+            <div class="form-group">
+                <label for="loginRegNo">Registration Number</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-id-card"></i>
+                    <!-- ID imebadilishwa kuwa loginRegNo -->
+                    <input type="text" id="loginRegNo" placeholder="e.g. 21100533210001" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                    <i class="fa-solid fa-eye toggle-password" data-target="loginPassword"></i>
+                </div>
+            </div>
+
+            <div class="form-actions-link">
+                <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="#" id="showRegisterLink">Register Here</a></p>
+            </div>
+        </form>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="auth-form">
+            <h3>Create New Account</h3>
+            <div class="form-group">
+                <label for="regFullName">Full Name</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="regFullName" placeholder="e.g. Emmanuel Joseph" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="regRegNo">Registration Number</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="regRegNo" placeholder="e.g. 21100533210001" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="regEmail">MUST Student / Staff Email</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="e.g. emmanuel@must.ac.tz" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="regRole">Academic Role</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <select id="regRole" required>
+                        <option value="student">Student</option>
+                        <option value="classRepresentative">Class Representative</option>
+                        <option value="peerTutor">Peer Tutor / Mentor</option>
+                        <option value="academicAdvisor">Academic Advisor</option>
+                        <option value="lecturer">Lecturer / Instructor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="regCollege">College / Faculty / Department</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <select id="regCollege" required></select>
+                </div>
+            </div>
+            <div class="form-group hidden" id="customCollegeGroup">
+                <label for="regCustomCollege">Specify College/Department</label>
+                <input type="text" id="regCustomCollege" placeholder="Enter custom college name">
+            </div>
+            <div class="form-group">
+                <label for="regCourse">Programme / Course of Study</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-book-open"></i>
+                    <select id="regCourse" required></select>
+                </div>
+            </div>
+            <div class="form-group hidden" id="customCourseGroup">
+                <label for="regCustomCourse">Specify Programme</label>
+                <input type="text" id="regCustomCourse" placeholder="Enter custom programme name">
+            </div>
+            <div class="form-group">
+                <label for="regSemester">Current Semester</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-calendar-week"></i>
+                    <select id="regSemester" required>
+                        <option value="Semester 1">Semester 1</option>
+                        <option value="Semester 2">Semester 2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Password</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="regPassword" placeholder="Create strong password" required>
+                    <i class="fa-solid fa-eye toggle-password" data-target="regPassword"></i>
+                </div>
+                <div class="password-strength-container">
+                    <div class="password-strength-bar" id="passMeter"></div>
+                </div>
+                <span class="password-strength-text" id="passLabel">Strength: None</span>
+            </div>
+            <div class="form-group">
+                <label for="regConfirmPassword">Confirm Password</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="regConfirmPassword" placeholder="Re-enter password" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Complete Registration</button>
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#" id="showLoginLink">Sign In</a></p>
+            </div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotForm" class="auth-form">
+            <h3>Reset Password</h3>
+            <p class="auth-desc">Enter your registered email address to receive password reset instructions.</p>
+            <div class="form-group">
+                <label for="forgotEmail">Email Address</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="forgotEmail" placeholder="yourname@must.ac.tz" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Send Reset Link</button>
+            <div class="auth-footer">
+                <p>Remembered your password? <a href="#" id="backToLoginLink">Back to Login</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!-- ==================================================================== -->
+    <!-- 2. MAIN APPLICATION DASHBOARD LAYOUT                                 -->
+    <!-- ==================================================================== -->
+    <div id="appContainer" class="app-layout hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <div class="brand-text">
+                    <h2>MUST AI</h2>
+                    <span>Study Planner</span>
+                </div>
+                <button class="mobile-close-btn" id="closeSidebarMobile"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="sidebar-user-card">
+                <img src="https://via.placeholder.com/150" id="sidebarAvatar" alt="User Profile">
+                <div class="user-info">
+                    <h4 id="sidebarUserName">User Name</h4>
+                    <span id="sidebarUserRole" class="badge-role">Student</span>
+                    <p id="sidebarRegNo">Reg No</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" class="nav-item active" data-target="dashboardView"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-item" data-target="timetableGenView"><i class="fa-solid fa-wand-magic-sparkles"></i> Timetable Generator</a></li>
+                    <li><a href="#" class="nav-item" data-target="timetableView"><i class="fa-solid fa-calendar-days"></i> Interactive Timetable</a></li>
+                    <li><a href="#" class="nav-item" data-target="modulesView"><i class="fa-solid fa-book"></i> Module Manager</a></li>
+                    <li><a href="#" class="nav-item" data-target="aiHubView"><i class="fa-solid fa-robot"></i> AI Study Assistant</a></li>
+                    <li><a href="#" class="nav-item" data-target="recommendationsView"><i class="fa-solid fa-lightbulb"></i> Academic Guidance</a></li>
+                    <li><a href="#" class="nav-item" data-target="profileView"><i class="fa-solid fa-user-gear"></i> Profile & Camera</a></li>
+                    <li><a href="#" class="nav-item" data-target="helpView"><i class="fa-solid fa-circle-question"></i> Help & Guides</a></li>
+                    <li><a href="#" class="nav-item" data-target="settingsView"><i class="fa-solid fa-sliders"></i> System Settings</a></li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-outline btn-block" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+            </div>
+        </aside>
+
+        <!-- Main Content View Area -->
+        <main class="main-wrapper">
+            
+            <!-- Top App Header Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-toggle-btn" id="toggleSidebarMobile"><i class="fa-solid fa-bars"></i></button>
+                    <div class="global-search-container">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="globalSearchInput" placeholder="Search modules, codes, or sessions...">
+                        <div class="search-results-dropdown hidden" id="searchResultsDropdown"></div>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="notif-wrapper">
+                        <button class="icon-btn" id="notifBellBtn">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="notif-badge hidden" id="notifBadge">0</span>
+                        </button>
+                        <div class="notif-panel hidden" id="notifPanel">
+                            <div class="notif-header">
+                                <h3>Notifications</h3>
+                                <button class="btn-text" id="markAllReadBtn">Mark all as read</button>
+                            </div>
+                            <div class="notif-list" id="notifList"></div>
+                        </div>
+                    </div>
+
+                    <div class="topbar-profile">
+                        <img src="https://via.placeholder.com/150" id="topAvatar" alt="Avatar">
+                        <span id="topUserName">Student</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic View Panels Container -->
+            <div class="content-container">
+                
+                <!-- VIEW 1: DASHBOARD -->
+                <section id="dashboardView" class="view-panel active">
+                    <div class="welcome-banner">
+                        <div class="welcome-text">
+                            <h2>Welcome back, <span id="dashWelcomeName">Student</span>! 👋</h2>
+                            <p id="dashSubBanner">Course: BSc Computer Science | Semester 1 | Academic Overview</p>
+                        </div>
+                        <button class="btn btn-primary" id="dashQuickGenBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Timetable</button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-blue"><i class="fa-solid fa-book"></i></div>
+                            <div class="stat-data">
+                                <h3 id="statTotalModules">0</h3>
+                                <p>Total Enrolled Modules</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="stat-data">
+                                <h3 id="statDifficultModules">0</h3>
+                                <p>Difficult Modules</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-orange"><i class="fa-solid fa-layer-group"></i></div>
+                            <div class="stat-data">
+                                <h3 id="statMediumModules">0</h3>
+                                <p>Medium Modules</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-green"><i class="fa-solid fa-circle-check"></i></div>
+                            <div class="stat-data">
+                                <h3 id="statEasyModules">0</h3>
+                                <p>Easy Modules</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-purple"><i class="fa-solid fa-clock"></i></div>
+                            <div class="stat-data">
+                                <h3 id="statStudyHours">0 hrs</h3>
+                                <p>Target Weekly Hours</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-teal"><i class="fa-solid fa-calendar-check"></i></div>
+                            <div class="stat-data">
+                                <h3 id="statSessionsCount">0</h3>
+                                <p>Scheduled Sessions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-layout">
+                        <div class="card-box">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-chart-pie"></i> Module Difficulty Breakdown</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="diff-bars-wrapper" id="moduleDifficultyOverview"></div>
+                            </div>
+                        </div>
+
+                        <div class="card-box">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-calendar-day"></i> Upcoming Today's Sessions</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="dashTodaySessions" class="sessions-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: TIMETABLE GENERATOR -->
+                <section id="timetableGenView" class="view-panel">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-wand-magic-sparkles font-navy"></i> Timetable Generator</h2>
+                        <p>Automatically generate an optimized weekly study schedule based on module difficulty and priority.</p>
+                    </div>
+
+                    <div class="card-box">
+                        <form id="timetableConfigForm">
+                            <div class="generator-grid">
+                                <div class="config-col">
+                                    <h4><i class="fa-solid fa-calendar-days"></i> 1. Select Study Days</h4>
+                                    <div class="checkbox-group-grid">
+                                        <label><input type="checkbox" name="studyDays" value="Monday" checked> Monday</label>
+                                        <label><input type="checkbox" name="studyDays" value="Tuesday" checked> Tuesday</label>
+                                        <label><input type="checkbox" name="studyDays" value="Wednesday" checked> Wednesday</label>
+                                        <label><input type="checkbox" name="studyDays" value="Thursday" checked> Thursday</label>
+                                        <label><input type="checkbox" name="studyDays" value="Friday" checked> Friday</label>
+                                        <label><input type="checkbox" name="studyDays" value="Saturday"> Saturday</label>
+                                        <label><input type="checkbox" name="studyDays" value="Sunday"> Sunday</label>
+                                    </div>
+
+                                    <h4 class="margin-top"><i class="fa-solid fa-clock"></i> 2. Time Preferences</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="ttStartTime">Daily Start Time</label>
+                                            <input type="time" id="ttStartTime" value="08:00" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ttEndTime">Daily End Time</label>
+                                            <input type="time" id="ttEndTime" value="18:00" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="ttSessionDuration">Session Duration</label>
+                                            <select id="ttSessionDuration" required>
+                                                <option value="60">60 Minutes (1 hour)</option>
+                                                <option value="90">90 Minutes (1.5 hours)</option>
+                                                <option value="120" selected>120 Minutes (2 hours)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ttBreakDuration">Break Between Sessions</label>
+                                            <select id="ttBreakDuration" required>
+                                                <option value="10" selected>10 Minutes</option>
+                                                <option value="15">15 Minutes</option>
+                                                <option value="30">30 Minutes</option>
+                                                <option value="60">1 hour</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="config-col">
+                                    <h4><i class="fa-solid fa-layer-group"></i> 3. Select Enrolled Modules to Include</h4>
+                                    <div class="module-selection-grid" id="genModuleSelectionList"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions-right margin-top">
+                                <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-gears"></i> Run AI Scheduling Algorithm</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: INTERACTIVE TIMETABLE -->
+                <section id="timetableView" class="view-panel">
+                    <div class="layout-between margin-bottom">
+                        <div>
+                            <h2><i class="fa-solid fa-calendar-check font-navy"></i> My Academic Timetable</h2>
+                            <p>create your Timetable.</p>
+                        </div>
+                        <div class="action-btn-group">
+                            <button class="btn btn-outline" id="addManualSessionBtn"><i class="fa-solid fa-plus"></i> Add Session</button>
+                            <button class="btn btn-success" id="exportTimetablePdf"><i class="fa-solid fa-file-pdf"></i> Download as PDF</button>
+                            <button class="btn btn-secondary" id="exportTimetableXlsx"><i class="fa-solid fa-file-excel"></i> Download as Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="view-switch-bar">
+                        <button class="btn-tab active" data-view="weekly"><i class="fa-solid fa-table-cells"></i> Weekly Session</button>
+                        <button class="btn-tab" data-view="daily"><i class="fa-solid fa-list-check"></i> Daily Session</button>
+                        <button class="btn-tab" data-view="calendar"><i class="fa-solid fa-calendar"></i> Month Session</button>
+                    </div>
+
+                    <div class="day-filter-bar hidden" id="dailyViewSelector">
+                        <label for="ttDaySelect">Select Day: </label>
+                        <select id="ttDaySelect">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+
+                    <div class="timetable-display-container">
+                        <div id="timetableWeeklyContainer" class="timetable-view-block"></div>
+                        <div id="timetableDailyContainer" class="timetable-view-block hidden"></div>
+                        <div id="timetableCalendarContainer" class="timetable-view-block hidden"></div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: MODULE MANAGER -->
+                <section id="modulesView" class="view-panel">
+                    <div class="layout-between margin-bottom">
+                        <div>
+                            <h2><i class="fa-solid fa-book-open font-navy"></i> Course Module Management</h2>
+                            <p>Manage your enrolled MUST modules, difficulty levels, and weekly targets.</p>
+                        </div>
+                        <div class="action-btn-group">
+                            <button class="btn btn-primary" id="openAddModuleModal"><i class="fa-solid fa-plus"></i> Add New Module</button>
+                            <button class="btn btn-outline" id="exportModulesPdf"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button class="btn btn-outline" id="exportModulesXlsx"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="card-box margin-bottom">
+                        <div class="filter-controls-grid">
+                            <div class="form-group">
+                                <label for="moduleSearchInput">Search Modules</label>
+                                <input type="text" id="moduleSearchInput" placeholder="Filter by code or name...">
+                            </div>
+                            <div class="form-group">
+                                <label for="moduleDifficultyFilter">Difficulty</label>
+                                <select id="moduleDifficultyFilter">
+                                    <option value="ALL">All Levels</option>
+                                    <option value="Difficult">Difficult</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Easy">Easy</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="modulePriorityFilter">Priority</label>
+                                <select id="modulePriorityFilter">
+                                    <option value="ALL">All Priorities</option>
+                                    <option value="Critical">Critical</option>
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table" id="modulesDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Module Title</th>
+                                    <th>Difficulty</th>
+                                    <th>Priority</th>
+                                    <th>Weekly Hrs</th>
+                                    <th>Semester</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modulesTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: AI STUDY ASSISTANT -->
+<section id="aiHubView" class="view-panel">
+    <div class="view-header">
+        <h2><i class="fa-solid fa-robot font-navy"></i> MUST AI Assistant & Diagnostic Hub</h2>
+        <p>Ask study queries, analyze module workload complexity, and receive personalized advice.</p>
+    </div>
+
+    <div class="ai-hub-nav">
+        <button class="ai-tab-btn active" data-aitab="aiChatTab"><i class="fa-solid fa-comments"></i> Interactive Chat</button>
+        <button class="ai-tab-btn" data-aitab="aiMetaTab"><i class="fa-solid fa-microchip"></i> Workload Diagnostic</button>
+    </div>
+
+    <!-- AI Chat Tab -->
+    <div id="aiChatTab" class="ai-tab-content active">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div>
+                    <h4><i class="fa-solid fa-circle-nodes text-success"></i> Academic Tutor AI</h4>
+                    <span>Active • Powered by MUST Academic Model</span>
+                </div>
+                <button class="btn btn-xs btn-outline" id="clearChatBtn"><i class="fa-solid fa-eraser"></i> Clear</button>
+            </div>
+            <div class="chat-messages" id="chatMessageWindow">
+                <div class="chat-msg ai">
+                    Hello! I am your MUST AI Academic Assistant. How can I assist with your study schedule or course revision today?
+                </div>
+            </div>
+
+            <!-- SEHEMU YA CHIPS IMEONDOLEWA KIKAMILIFU HAPA -->
+
+            <div class="chat-input-bar">
+                <input type="text" id="chatInputText" placeholder="Type your academic query or planner question...">
+                <button class="btn btn-primary" id="sendChatBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meta Workload Diagnostic Tab -->
+    <div id="aiMetaTab" class="ai-tab-content">
+        <div class="card-box">
+            <h3><i class="fa-solid fa-calculator"></i> Module Workload & Complexity Diagnostic</h3>
+            <p>Select any module to evaluate its recommended study allocation based on complexity and priority.</p>
+            
+            <div class="form-group margin-top">
+                <label for="metaModuleSelect">Select Module for Diagnostic</label>
+                <select id="metaModuleSelect"></select>
+            </div>
+            <button class="btn btn-primary" id="runMetaAnalysisBtn"><i class="fa-solid fa-magnifying-glass-chart"></i> Run Workload Analysis</button>
+
+            <div class="meta-results-box margin-top hidden" id="metaAnalysisResult">
+                <h4 id="metaResultTitle">Module Title</h4>
+                <div class="stats-grid margin-top">
+                    <div class="stat-card"><p>Difficulty Score</p><h3 id="metaResultDifficulty">-</h3></div>
+                    <div class="stat-card"><p>Recommended Target</p><h3 id="metaResultHours">-</h3></div>
+                    <div class="stat-card"><p>Suggested Frequency</p><h3 id="metaResultFreq">-</h3></div>
+                </div>
+                <div class="card-box margin-top bg-light">
+                    <h5><i class="fa-solid fa-lightbulb"></i> Recommended AI Strategy:</h5>
+                    <p id="metaResultStrategy" class="text-muted"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- VIEW 6: ACADEMIC GUIDANCE NOTES -->
+<section id="recommendationsView" class="view-panel">
+    <div class="layout-between margin-bottom">
+        <div>
+            <h2><i class="fa-solid fa-lightbulb font-navy"></i> Academic Guidance & Peer Notes</h2>
+            <p>Tips, strategies, and course recommendations provided by lecturers and peer tutors.</p>
+        </div>
+        <button class="btn btn-primary hidden" id="openAddRecModal"><i class="fa-solid fa-plus"></i> Post Guidance Note</button>
+    </div>
+
+    <div class="recommendations-grid" id="recommendationsListGrid"></div>
+</section>
+                <!-- VIEW 6: ACADEMIC GUIDANCE NOTES -->
+                <section id="recommendationsView" class="view-panel">
+                    <div class="layout-between margin-bottom">
+                        <div>
+                            <h2><i class="fa-solid fa-lightbulb font-navy"></i> Academic Guidance & Peer Notes</h2>
+                            <p>Tips, strategies, and course recommendations provided by lecturers and peer tutors.</p>
+                        </div>
+                        <button class="btn btn-primary hidden" id="openAddRecModal"><i class="fa-solid fa-plus"></i> Post Guidance Note</button>
+                    </div>
+
+                    <div class="recommendations-grid" id="recommendationsListGrid"></div>
+                </section>
+
+                <!-- VIEW 7: PROFILE & CAMERA INTEGRATION -->
+                <section id="profileView" class="view-panel">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-user-gear font-navy"></i> Profile Management & Identity</h2>
+                        <p>Manage your academic identity details and update your avatar picture.</p>
+                    </div>
+
+                    <div class="profile-layout-grid">
+                        <div class="card-box text-center">
+                            <div class="avatar-upload-wrapper">
+                                <img src="https://via.placeholder.com/150" id="profileDisplayAvatar" alt="Profile Picture">
+                            </div>
+                            <h3 id="profileDisplayName" class="margin-top">User Name</h3>
+                            <p id="profileDisplayRole" class="text-muted">Student</p>
+                            <p id="profileDisplayRegNo" class="badge-role margin-top">Reg No</p>
+
+                            <div class="avatar-actions margin-top">
+                                <label for="avatarFileInput" class="btn btn-xs btn-outline"><i class="fa-solid fa-upload"></i> Upload Photo</label>
+                                <input type="file" id="avatarFileInput" accept="image/*" class="hidden">
+                                <button class="btn btn-xs btn-primary" id="openCameraModalBtn"><i class="fa-solid fa-camera"></i> Take Snapshot</button>
+                            </div>
+                        </div>
+
+                        <div class="card-box">
+                            <h3>Edit Profile Information</h3>
+                            <form id="profileUpdateForm" class="margin-top">
+                                <div class="form-group">
+                                    <label for="profFullName">Full Name</label>
+                                    <input type="text" id="profFullName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profRegNo">Registration Number</label>
+                                    <input type="text" id="profRegNo" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profEmail">Email Address</label>
+                                    <input type="email" id="profEmail" readonly disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profRole">Academic Role</label>
+                                    <input type="text" id="profRole" readonly disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profCollege">College / Department</label>
+                                    <input type="text" id="profCollege" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profCourse">Programme / Course</label>
+                                    <input type="text" id="profCourse" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profSemester">Semester</label>
+                                    <select id="profSemester">
+                                        <option value="Semester 1">Semester 1</option>
+                                        <option value="Semester 2">Semester 2</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Profile Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 8: HELP & USER MANUAL -->
+                <section id="helpView" class="view-panel">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-circle-question font-navy"></i> System Help & User Documentation</h2>
+                        <p>Learn how to utilize the MUST AI Study Planner effectively.</p>
+                    </div>
+
+                    <div class="help-accordion-grid">
+                        <div class="card-box">
+                            <h4><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> How does the AI Scheduler work?</h4>
+                            <p class="text-muted margin-top">The system uses a multi-constraint heuristic algorithm. It assigns higher priority and more weekly study blocks to modules marked as <strong>Difficult</strong> or <strong>Critical</strong>, placing them early in your day when cognitive focus is highest.</p>
+                        </div>
+                        <div class="card-box">
+                            <h4><i class="fa-solid fa-shield-halved text-success"></i> How is my data stored?</h4>
+                            <p class="text-muted margin-top">All user data, modules, and timetable preferences are securely stored in your browser's Local Storage, isolated per registration account.</p>
+                        </div>
+                        <div class="card-box">
+                            <h4><i class="fa-solid fa-file-export text-purple"></i> How to export schedules?</h4>
+                            <p class="text-muted margin-top">Navigate to the <strong>Interactive Timetable</strong> view and use the PDF or Excel export buttons to download offline copies for printing.</p>
+                        </div>
+                        <div class="card-box">
+                            <h4><i class="fa-solid fa-user-shield text-warning"></i> Role Permissions</h4>
+                            <p class="text-muted margin-top">Class Representatives, Lecturers, and Peer Tutors have authorization to post academic guidance notes visible to all enrolled students.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 9: SYSTEM SETTINGS -->
+                <section id="settingsView" class="view-panel">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-sliders font-navy"></i> System Preferences & Customization</h2>
+                        <p>Tailor your layout theme, typography, accent colors, and backup settings.</p>
+                    </div>
+
+                    <div class="card-box max-width-md">
+                        <h3>Visual Preferences</h3>
+                        <div class="form-group margin-top">
+                            <label for="settingTheme">Color Mode / Theme</label>
+                            <select id="settingTheme">
+                                <option value="light">Light Mode</option>
+                                <option value="dark">Dark Mode</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingFont">Typography Font</label>
+                            <select id="settingFont">
+                                <option value="inter">Inter (Default Modern)</option>
+                                <option value="poppins">Poppins (Clean)</option>
+                                <option value="roboto">Roboto (Classic)</option>
+                                <option value="fira">Fira Code (Monospace)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingAccent">System Accent Color</label>
+                            <select id="settingAccent">
+                                <option value="navy">MUST Navy Blue</option>
+                                <option value="teal">Emerald Teal</option>
+                                <option value="purple">Royal Purple</option>
+                                <option value="orange">Sunset Orange</option>
+                            </select>
+                        </div>
+
+                        <hr class="margin-y">
+
+                        <h3>Data & Backup Management</h3>
+                        <div class="action-btn-group margin-top">
+                            <button class="btn btn-outline" id="exportJsonDataBtn"><i class="fa-solid fa-download"></i> Download Full JSON Backup</button>
+                            <button class="btn btn-danger" id="resetSystemDataBtn"><i class="fa-solid fa-trash-arrow-up"></i> Reset User Data</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- 3. MODAL DIALOGS                                                     -->
+    <!-- ==================================================================== -->
+
+    <!-- Module Add / Edit Modal -->
+    <div class="modal-overlay hidden" id="moduleModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="moduleModalTitle">Add Course Module</h3>
+                <button class="close-modal-btn" data-close="moduleModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="moduleForm">
+                <input type="hidden" id="modId">
+                <div class="form-group">
+                    <label for="modCode">Module Code</label>
+                    <input type="text" id="modCode" placeholder="e.g. IT 8201" required>
+                </div>
+                <div class="form-group">
+                    <label for="modName">Module Name / Title</label>
+                    <input type="text" id="modName" placeholder="e.g. Data Structures & Algorithms" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modDifficulty">Difficulty Level</label>
+                        <select id="modDifficulty" required>
+                            <option value="Difficult">Difficult</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Easy">Easy</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modPriority">Study Priority</label>
+                        <select id="modPriority" required>
+                            <option value="Critical">Critical</option>
+                            <option value="High" selected>High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="modHours">Target Hours / Week</label>
+                        <input type="number" id="modHours" min="1" max="30" value="4" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modSemester">Semester</label>
+                        <select id="modSemester" required>
+                            <option value="Semester 1">Semester 1</option>
+                            <option value="Semester 2">Semester 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="modDescription">Description / Notes</label>
+                    <textarea id="modDescription" rows="3" placeholder="Brief outline of topics..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close="moduleModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Module</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manual Session Modal -->
+    <div class="modal-overlay hidden" id="sessionModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Add Timetable Session</h3>
+                <button class="close-modal-btn" data-close="sessionModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="sessionForm">
+                <div class="form-group">
+                    <label for="sessModuleCode">Select Enrolled Module</label>
+                    <select id="sessModuleCode" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="sessDay">Day of Week</label>
+                    <select id="sessDay" required>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sessStartTime">Start Time</label>
+                        <input type="time" id="sessStartTime" value="08:00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sessEndTime">End Time</label>
+                        <input type="time" id="sessEndTime" value="10:00" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="sessType">Session Activity Type</label>
+                    <select id="sessType" required>
+                        <option value="Self Study">Self Study</option>
+                        <option value="Lecture Revision">Lecture Revision</option>
+                        <option value="Group Discussion">Group Discussion</option>
+                        <option value="Lab Practical Prep">Lab Practical Prep</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close="sessionModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add to Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Recommendation Modal -->
+    <div class="modal-overlay hidden" id="recModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Post Academic Guidance Note</h3>
+                <button class="close-modal-btn" data-close="recModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="recForm">
+                <div class="form-group">
+                    <label for="recTitle">Guidance Title</label>
+                    <input type="text" id="recTitle" placeholder="e.g. Effective Revision Strategy for Networks" required>
+                </div>
+                <div class="form-group">
+                    <label for="recTargetCourse">Target Course / Module</label>
+                    <input type="text" id="recTargetCourse" placeholder="e.g. BSc Computer Science / All" required>
+                </div>
+                <div class="form-group">
+                    <label for="recContent">Recommendation Content</label>
+                    <textarea id="recContent" rows="4" placeholder="Detail your recommended study approach..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close="recModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Publish Guidance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Camera WebCam Modal -->
+    <div class="modal-overlay hidden" id="cameraModal">
+        <div class="modal-card text-center">
+            <div class="modal-header">
+                <h3>Take Profile Snapshot</h3>
+                <button class="close-modal-btn" id="closeCameraModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="camera-stream-container margin-top">
+                <video id="cameraVideo" autoplay playsinline></video>
+                <canvas id="cameraCanvas" class="hidden"></canvas>
+            </div>
+            <div class="modal-footer center-buttons margin-top">
+                <button class="btn btn-primary" id="takeSnapshotBtn"><i class="fa-solid fa-camera"></i> Capture</button>
+                <button class="btn btn-warning hidden" id="retakeSnapshotBtn"><i class="fa-solid fa-rotate-left"></i> Retake</button>
+                <button class="btn btn-success hidden" id="saveSnapshotBtn"><i class="fa-solid fa-check"></i> Use Photo</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Application JavaScript File -->
+    <script src="script.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
